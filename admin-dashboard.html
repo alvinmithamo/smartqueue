@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SmartQueue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heroicons@2.0.13/24/outline.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-indigo-900 text-white p-6 hidden md:block">
+            <h1 class="text-2xl font-bold mb-8">SmartQueue Admin</h1>
+            <nav>
+                <ul class="space-y-4">
+                    <li><a href="index.html" class="flex items-center space-x-2 text-indigo-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span>Home</span></a></li>
+                    <li><a href="admin-login.html" id="logout" class="flex items-center space-x-2 text-indigo-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg><span>Log Out</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Header -->
+            <header class="bg-white shadow p-4 flex justify-between items-center md:hidden">
+                <h1 class="text-xl font-bold text-indigo-900">SmartQueue Admin</h1>
+                <button id="mobileLogout" class="text-red-600 hover:text-red-700">Log Out</button>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="max-w-6xl mx-auto py-8 px-4">
+                <div class="bg-indigo-50 p-6 rounded-lg mb-8 shadow-lg">
+                    <h2 class="text-3xl font-bold text-indigo-900">Admin Control Panel</h2>
+                    <p class="text-indigo-700 mt-2">Manage queues, allocate patients, and optimize clinic operations.</p>
+                </div>
+
+                <!-- Service Status -->
+                <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-2xl font-semibold text-indigo-900 mb-2">Service Status</h3>
+                            <p id="serviceStatus" class="text-indigo-700">Services are Open</p>
+                        </div>
+                        <button id="toggleService" class="bg-yellow-500 text-white py-2 px-6 rounded-lg hover:bg-yellow-600 transition-colors">Close Services</button>
+                    </div>
+                </div>
+
+                <!-- Queue Management -->
+                <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-semibold text-indigo-900">Manage Queue</h3>
+                        <button id="callNext" class="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition-colors">Call Next Client</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table id="queueList" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slot</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Allocate User -->
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-indigo-900 mb-6">Allocate Patient to Doctor</h3>
+                    <form id="allocateForm" class="space-y-6">
+                        <div>
+                            <label for="allocateEmail" class="block text-sm font-medium text-gray-700">Patient Email</label>
+                            <input type="email" id="allocateEmail" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        </div>
+                        <div>
+                            <label for="allocateDoctor" class="block text-sm font-medium text-gray-700">Select Doctor</label>
+                            <select id="allocateDoctor" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                                <option value="Dr. Smith">Dr. Smith</option>
+                                <option value="Dr. Jones">Dr. Jones</option>
+                                <option value="Dr. Lee">Dr. Lee</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="allocateSlot" class="block text-sm font-medium text-gray-700">Select Time Slot</label>
+                            <select id="allocateSlot" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors">Allocate</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+        let queue = JSON.parse(localStorage.getItem('queue')) || [];
+        let serviceStatus = localStorage.getItem('serviceStatus') || 'open';
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        if (!currentUser || currentUser.role !== 'admin') {
+            window.location.href = './admin-login.html';
+        }
+
+        const slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
+        const slotSelect = document.getElementById('allocateSlot');
+        slots.forEach(slot => {
+            const option = document.createElement('option');
+            option.value = slot;
+            option.textContent = slot;
+            slotSelect.appendChild(option);
+        });
+
+        function updateServiceStatus() {
+            document.getElementById('serviceStatus').textContent = serviceStatus === 'open' ? 'Services are Open' : 'Services are Closed';
+            document.getElementById('toggleService').textContent = serviceStatus === 'open' ? 'Close Services' : 'Reopen Services';
+        }
+        updateServiceStatus();
+
+        function updateQueueList() {
+            const queueList = document.querySelector('#queueList tbody');
+            queueList.innerHTML = '';
+            queue.forEach((email, index) => {
+                const user = users.find(u => u.email === email);
+                const appt = appointments.find(a => a.email === email);
+                if (user && appt) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.doctor}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.slot}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button class="removeUser bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600" data-email="${email}">Remove</button>
+                        </td>
+                    `;
+                    queueList.appendChild(row);
+                }
+            });
+
+            document.querySelectorAll('.removeUser').forEach(button => {
+                button.addEventListener('click', function() {
+                    const email = this.getAttribute('data-email');
+                    queue = queue.filter(e => e !== email);
+                    appointments = appointments.filter(a => a.email !== email);
+                    localStorage.setItem('queue', JSON.stringify(queue));
+                    localStorage.setItem('appointments', JSON.stringify(appointments));
+                    alert(`User ${email} removed from queue.`);
+                    updateQueueList();
+                });
+            });
+        }
+        updateQueueList();
+
+        document.getElementById('toggleService').addEventListener('click', function() {
+            serviceStatus = serviceStatus === 'open' ? 'closed' : 'open';
+            localStorage.setItem('serviceStatus', serviceStatus);
+            updateServiceStatus();
+        });
+
+        document.getElementById('callNext').addEventListener('click', function() {
+            if (queue.length === 0) {
+                alert('No clients in queue.');
+                return;
+            }
+            const nextEmail = queue.shift();
+            appointments = appointments.filter(a => a.email !== nextEmail);
+            localStorage.setItem('queue', JSON.stringify(queue));
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            alert(`Called next client: ${nextEmail}`);
+            updateQueueList();
+        });
+
+        document.getElementById('allocateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('allocateEmail').value;
+            const doctor = document.getElementById('allocateDoctor').value;
+            const slot = document.getElementById('allocateSlot').value;
+
+            if (serviceStatus === 'closed') {
+                alert('Services are closed. Cannot allocate users.');
+                return;
+            }
+
+            if (!users.find(u => u.email === email)) {
+                alert('User not found.');
+                return;
+            }
+
+            if (appointments.find(a => a.slot === slot && a.doctor === doctor)) {
+                alert('This slot is already booked.');
+                return;
+            }
+
+            // Remove existing appointment and queue entry
+            appointments = appointments.filter(a => a.email !== email);
+            queue = queue.filter(e => e !== email);
+
+            // Add new appointment and update queue
+            appointments.push({ email, doctor, slot });
+            if (!queue.includes(email)) {
+                queue.push(email);
+            }
+
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            localStorage.setItem('queue', JSON.stringify(queue));
+            alert(`User ${email} allocated to ${doctor} at ${slot}.`);
+            updateQueueList();
+        });
+
+        document.getElementById('logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            window.location.href = './admin-login.html';
+        });
+        document.getElementById('mobileLogout').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = './admin-login.html';
+        });
+
+        setInterval(updateQueueList, 5000);
+    </script>
+</body>
+</html>
