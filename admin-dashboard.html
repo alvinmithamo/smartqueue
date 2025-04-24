@@ -14,7 +14,7 @@
             <h1 class="text-2xl font-bold mb-8">SmartQueue Admin</h1>
             <nav>
                 <ul class="space-y-4">
-                    <li><a href="index.html" class="flex items-center space-x-2 text-indigo-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span>Home</span></a></li>
+                    <li><a href="#" class="flex items-center space-x-2 text-indigo-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span>Dashboard</span></a></li>
                     <li><a href="admin-login.html" id="logout" class="flex items-center space-x-2 text-indigo-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg><span>Log Out</span></a></li>
                 </ul>
             </nav>
@@ -58,6 +58,7 @@
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slot</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
@@ -71,7 +72,7 @@
                 </div>
 
                 <!-- Allocate User -->
-                <div class="bg-white p-8 rounded-lg shadow-lg">
+                <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
                     <h3 class="text-2xl font-semibold text-indigo-900 mb-6">Allocate Patient to Doctor</h3>
                     <form id="allocateForm" class="space-y-6">
                         <div>
@@ -79,11 +80,21 @@
                             <input type="email" id="allocateEmail" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
                         </div>
                         <div>
+                            <label for="allocateService" class="block text-sm font-medium text-gray-700">Select Service</label>
+                            <select id="allocateService" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                                <option value="General">General</option>
+                                <option value="Paediatric">Paediatric</option>
+                                <option value="ENT">ENT</option>
+                                <option value="Renal">Renal</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Orthopaedics">Orthopaedics</option>
+                                <option value="Neurology">Neurology</option>
+                            </select>
+                        </div>
+                        <div>
                             <label for="allocateDoctor" class="block text-sm font-medium text-gray-700">Select Doctor</label>
                             <select id="allocateDoctor" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
-                                <option value="Dr. Smith">Dr. Smith</option>
-                                <option value="Dr. Jones">Dr. Jones</option>
-                                <option value="Dr. Lee">Dr. Lee</option>
+                                <!-- Populated dynamically -->
                             </select>
                         </div>
                         <div>
@@ -95,6 +106,27 @@
                         <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors">Allocate</button>
                     </form>
                 </div>
+
+                <!-- Manage Doctors -->
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-indigo-900 mb-6">Manage Doctors</h3>
+                    <div class="overflow-x-auto">
+                        <table id="doctorList" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Availability</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -103,6 +135,7 @@
         let users = JSON.parse(localStorage.getItem('users')) || [];
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         let queue = JSON.parse(localStorage.getItem('queue')) || [];
+        let doctorsAvailability = JSON.parse(localStorage.getItem('doctorsAvailability')) || {};
         let serviceStatus = localStorage.getItem('serviceStatus') || 'open';
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
@@ -111,13 +144,33 @@
         }
 
         const slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
-        const slotSelect = document.getElementById('allocateSlot');
-        slots.forEach(slot => {
-            const option = document.createElement('option');
-            option.value = slot;
-            option.textContent = slot;
-            slotSelect.appendChild(option);
-        });
+
+        function populateAllocationFields() {
+            const serviceSelect = document.getElementById('allocateService');
+            const doctorSelect = document.getElementById('allocateDoctor');
+            const slotSelect = document.getElementById('allocateSlot');
+
+            serviceSelect.addEventListener('change', function() {
+                const service = this.value;
+                doctorSelect.innerHTML = '';
+                const doctors = users.filter(u => u.role === 'doctor' && u.service === service);
+                doctors.forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor.name;
+                    option.textContent = doctor.name;
+                    doctorSelect.appendChild(option);
+                });
+            });
+
+            slotSelect.innerHTML = '';
+            slots.forEach(slot => {
+                const option = document.createElement('option');
+                option.value = slot;
+                option.textContent = slot;
+                slotSelect.appendChild(option);
+            });
+        }
+        populateAllocationFields();
 
         function updateServiceStatus() {
             document.getElementById('serviceStatus').textContent = serviceStatus === 'open' ? 'Services are Open' : 'Services are Closed';
@@ -136,6 +189,7 @@
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.name}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.service}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.doctor}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.slot}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -160,6 +214,37 @@
         }
         updateQueueList();
 
+        function updateDoctorList() {
+            const doctorList = document.querySelector('#doctorList tbody');
+            doctorList.innerHTML = '';
+            users
+                .filter(u => u.role === 'doctor')
+                .forEach(doctor => {
+                    const availability = doctorsAvailability[doctor.name]?.available ? 'Available' : 'Not Available';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${doctor.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${doctor.email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${doctor.service}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${availability}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button class="toggleDoctorAvailability bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600" data-name="${doctor.name}">${availability === 'Available' ? 'Mark Not Available' : 'Mark Available'}</button>
+                        </td>
+                    `;
+                    doctorList.appendChild(row);
+                });
+
+            document.querySelectorAll('.toggleDoctorAvailability').forEach(button => {
+                button.addEventListener('click', function() {
+                    const name = this.getAttribute('data-name');
+                    doctorsAvailability[name].available = !doctorsAvailability[name].available;
+                    localStorage.setItem('doctorsAvailability', JSON.stringify(doctorsAvailability));
+                    updateDoctorList();
+                });
+            });
+        }
+        updateDoctorList();
+
         document.getElementById('toggleService').addEventListener('click', function() {
             serviceStatus = serviceStatus === 'open' ? 'closed' : 'open';
             localStorage.setItem('serviceStatus', serviceStatus);
@@ -182,6 +267,7 @@
         document.getElementById('allocateForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('allocateEmail').value;
+            const service = document.getElementById('allocateService').value;
             const doctor = document.getElementById('allocateDoctor').value;
             const slot = document.getElementById('allocateSlot').value;
 
@@ -200,19 +286,21 @@
                 return;
             }
 
-            // Remove existing appointment and queue entry
+            if (!doctorsAvailability[doctor]?.available) {
+                alert('Selected doctor is not available.');
+                return;
+            }
+
             appointments = appointments.filter(a => a.email !== email);
             queue = queue.filter(e => e !== email);
-
-            // Add new appointment and update queue
-            appointments.push({ email, doctor, slot });
+            appointments.push({ email, doctor, slot, service });
             if (!queue.includes(email)) {
                 queue.push(email);
             }
 
             localStorage.setItem('appointments', JSON.stringify(appointments));
             localStorage.setItem('queue', JSON.stringify(queue));
-            alert(`User ${email} allocated to ${doctor} at ${slot}.`);
+            alert(`User ${email} allocated to ${doctor} for ${service} at ${slot}.`);
             updateQueueList();
         });
 
@@ -226,7 +314,10 @@
             window.location.href = './admin-login.html';
         });
 
-        setInterval(updateQueueList, 5000);
+        setInterval(() => {
+            updateQueueList();
+            updateDoctorList();
+        }, 5000);
     </script>
 </body>
 </html>
