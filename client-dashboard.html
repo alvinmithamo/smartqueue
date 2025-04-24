@@ -14,7 +14,7 @@
             <h1 class="text-2xl font-bold mb-8">SmartQueue</h1>
             <nav>
                 <ul class="space-y-4">
-                    <li><a href="index.html" class="flex items-center space-x-2 text-blue-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span>Home</span></a></li>
+                    <li><a href="#" class="flex items-center space-x-2 text-blue-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span>Dashboard</span></a></li>
                     <li><a href="client-login.html" id="logout" class="flex items-center space-x-2 text-blue-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg><span>Log Out</span></a></li>
                 </ul>
             </nav>
@@ -71,20 +71,36 @@
                     <h3 class="text-2xl font-semibold text-blue-800 mb-6">Book an Appointment</h3>
                     <form id="bookForm" class="space-y-6">
                         <div>
-                            <label for="doctor" class="block text-sm font-medium text-gray-700">Select Doctor</label>
-                            <select id="doctor" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
-                                <option value="Dr. Smith">Dr. Smith</option>
-                                <option value="Dr. Jones">Dr. Jones</option>
-                                <option value="Dr. Lee">Dr. Lee</option>
+                            <label for="service" class="block text-sm font-medium text-gray-700">Select Service</label>
+                            <select id="service" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                <option value="General">General</option>
+                                <option value="Paediatric">Paediatric</option>
+                                <option value="ENT">ENT</option>
+                                <option value="Renal">Renal</option>
+                                <option value="Cardiology">Cardiology</option>
+                                <option value="Orthopaedics">Orthopaedics</option>
+                                <option value="Neurology">Neurology</option>
                             </select>
                         </div>
                         <div>
-                            <label for="slot" class="block text-sm font-medium text-gray-700">Select Time Slot</label>
-                            <select id="slot" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
-                                <!-- Populated dynamically -->
-                            </select>
+                            <p id="doctorAvailability" class="text-sm font-medium text-gray-700">Select a service to check doctor availability.</p>
+                            <button type="button" id="checkAvailability" class="mt-2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">Check Availability</button>
                         </div>
-                        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Book Appointment</button>
+                        <div id="bookingFields" class="space-y-6 hidden">
+                            <div>
+                                <label for="doctor" class="block text-sm font-medium text-gray-700">Select Doctor</label>
+                                <select id="doctor" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label for="slot" class="block text-sm font-medium text-gray-700">Select Time Slot</label>
+                                <select id="slot" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Book Appointment</button>
+                        </div>
                     </form>
                 </div>
 
@@ -105,6 +121,7 @@
         let users = JSON.parse(localStorage.getItem('users')) || [];
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         let queue = JSON.parse(localStorage.getItem('queue')) || [];
+        let doctorsAvailability = JSON.parse(localStorage.getItem('doctorsAvailability')) || {};
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
         if (!currentUser) {
@@ -114,26 +131,19 @@
         document.getElementById('userName').textContent = currentUser.name;
 
         const slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
-        const slotSelect = document.getElementById('slot');
-        slots.forEach(slot => {
-            const option = document.createElement('option');
-            option.value = slot;
-            option.textContent = slot;
-            slotSelect.appendChild(option);
-        });
 
         function updateQueueStats() {
-            // Reload data from localStorage to catch admin updates
             appointments = JSON.parse(localStorage.getItem('appointments')) || [];
             queue = JSON.parse(localStorage.getItem('queue')) || [];
+            doctorsAvailability = JSON.parse(localStorage.getItem('doctorsAvailability')) || {};
 
             const userAppointment = appointments.find(appt => appt.email === currentUser.email);
             document.getElementById('queueSize').textContent = queue.length;
             if (userAppointment && queue.includes(currentUser.email)) {
                 const position = queue.indexOf(currentUser.email) + 1;
                 document.getElementById('queuePosition').textContent = position;
-                document.getElementById('waitTime').textContent = `${position * 10} minutes`;
-                document.getElementById('appointmentDetails').textContent = `Doctor: ${userAppointment.doctor}, Time: ${userAppointment.slot}`;
+                document.getElementById('waitTime').textContent = `${position * 15} minutes`;
+                document.getElementById('appointmentDetails').textContent = `Service: ${userAppointment.service}, Doctor: ${userAppointment.doctor}, Time: ${userAppointment.slot}`;
                 document.getElementById('appointmentActions').classList.remove('hidden');
             } else {
                 document.getElementById('queuePosition').textContent = '-';
@@ -144,8 +154,58 @@
         }
         updateQueueStats();
 
+        function checkDoctorAvailability() {
+            const service = document.getElementById('service').value;
+            const doctorSelect = document.getElementById('doctor');
+            const slotSelect = document.getElementById('slot');
+            const availabilityText = document.getElementById('doctorAvailability');
+            const bookingFields = document.getElementById('bookingFields');
+
+            doctorSelect.innerHTML = '';
+            slotSelect.innerHTML = '';
+
+            const availableDoctors = Object.entries(doctorsAvailability)
+                .filter(([_, data]) => data.service === service && data.available)
+                .map(([name]) => name);
+
+            if (availableDoctors.length > 0) {
+                availabilityText.textContent = 'Doctor Available';
+                availabilityText.classList.remove('text-red-600');
+                availabilityText.classList.add('text-green-600');
+                bookingFields.classList.remove('hidden');
+
+                availableDoctors.forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor;
+                    option.textContent = doctor;
+                    doctorSelect.appendChild(option);
+                });
+
+                slots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    slotSelect.appendChild(option);
+                });
+            } else {
+                availabilityText.textContent = 'Doctor Not Available';
+                availabilityText.classList.remove('text-green-600');
+                availabilityText.classList.add('text-red-600');
+                bookingFields.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('checkAvailability').addEventListener('click', checkDoctorAvailability);
+
+        document.getElementById('service').addEventListener('change', function() {
+            document.getElementById('doctorAvailability').textContent = 'Select a service to check doctor availability.';
+            document.getElementById('doctorAvailability').classList.remove('text-green-600', 'text-red-600');
+            document.getElementById('bookingFields').classList.add('hidden');
+        });
+
         document.getElementById('bookForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const service = document.getElementById('service').value;
             const doctor = document.getElementById('doctor').value;
             const slot = document.getElementById('slot').value;
 
@@ -156,7 +216,7 @@
 
             appointments = appointments.filter(appt => appt.email !== currentUser.email);
             queue = queue.filter(email => email !== currentUser.email);
-            appointments.push({ email: currentUser.email, doctor, slot });
+            appointments.push({ email: currentUser.email, doctor, slot, service });
             queue.push(currentUser.email);
             localStorage.setItem('appointments', JSON.stringify(appointments));
             localStorage.setItem('queue', JSON.stringify(queue));
@@ -188,7 +248,10 @@
             window.location.href = './client-login.html';
         });
 
-        setInterval(updateQueueStats, 5000);
+        setInterval(() => {
+            updateQueueStats();
+            checkDoctorAvailability();
+        }, 5000);
     </script>
 </body>
 </html>
