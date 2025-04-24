@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - SmartQueue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/heroicons@2.0.13/24/outline.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-indigo-900 text-white p-6 hidden md:block">
+            <h1 class="text-2xl font-bold mb-8">SmartQueue Doctor</h1>
+            <nav>
+                <ul class="space-y-4">
+                    <li><a href="#" class="flex items-center space-x-2 text-indigo-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span>Dashboard</span></a></li>
+                    <li><a href="doctor-login.html" id="logout" class="flex items-center space-x-2 text-indigo-200 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg><span>Log Out</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Header -->
+            <header class="bg-white shadow p-4 flex justify-between items-center md:hidden">
+                <h1 class="text-xl font-bold text-indigo-900">SmartQueue Doctor</h1>
+                <button id="mobileLogout" class="text-red-600 hover:text-red-700">Log Out</button>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="max-w-6xl mx-auto py-8 px-4">
+                <div class="bg-indigo-50 p-6 rounded-lg mb-8 shadow-lg">
+                    <h2 class="text-3xl font-bold text-indigo-900">Welcome, <span id="userName"></span></h2>
+                    <p class="text-indigo-700 mt-2">Manage your patient queue and update your availability.</p>
+                </div>
+
+                <!-- Availability Status -->
+                <div class="bg-white p-8 rounded-lg shadow-lg mb-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-2xl font-semibold text-indigo-900 mb-2">Availability Status</h3>
+                            <p id="availabilityStatus" class="text-indigo-700">Available</p>
+                        </div>
+                        <button id="toggleAvailability" class="bg-yellow-500 text-white py-2 px-6 rounded-lg hover:bg-yellow-600 transition-colors">Mark as Not Available</button>
+                    </div>
+                </div>
+
+                <!-- Assigned Patients -->
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-indigo-900 mb-6">Assigned Patients</h3>
+                    <div class="overflow-x-auto">
+                        <table id="patientList" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slot</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+        let queue = JSON.parse(localStorage.getItem('queue')) || [];
+        let doctorsAvailability = JSON.parse(localStorage.getItem('doctorsAvailability')) || {};
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        if (!currentUser || currentUser.role !== 'doctor') {
+            window.location.href = './doctor-login.html';
+        }
+
+        document.getElementById('userName').textContent = currentUser.name;
+
+        function updateAvailabilityStatus() {
+            const status = doctorsAvailability[currentUser.name]?.available ? 'Available' : 'Not Available';
+            document.getElementById('availabilityStatus').textContent = status;
+            document.getElementById('toggleAvailability').textContent = status === 'Available' ? 'Mark as Not Available' : 'Mark as Available';
+        }
+        updateAvailabilityStatus();
+
+        function updatePatientList() {
+            const patientList = document.querySelector('#patientList tbody');
+            patientList.innerHTML = '';
+            appointments
+                .filter(appt => appt.doctor === currentUser.name)
+                .forEach(appt => {
+                    const user = users.find(u => u.email === appt.email);
+                    if (user) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.email}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.service}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${appt.slot}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <button class="completePatient bg-green-500 text-white py-1 px-3 rounded-lg hover:bg-green-600" data-email="${appt.email}">Complete</button>
+                            </td>
+                        `;
+                        patientList.appendChild(row);
+                    }
+                });
+
+            document.querySelectorAll('.completePatient').forEach(button => {
+                button.addEventListener('click', function() {
+                    const email = this.getAttribute('data-email');
+                    appointments = appointments.filter(a => a.email !== email || a.doctor !== currentUser.name);
+                    queue = queue.filter(e => e !== email);
+                    doctorsAvailability[currentUser.name].available = true;
+                    localStorage.setItem('appointments', JSON.stringify(appointments));
+                    localStorage.setItem('queue', JSON.stringify(queue));
+                    localStorage.setItem('doctorsAvailability', JSON.stringify(doctorsAvailability));
+                    alert(`Patient ${email} marked as completed. You are now available.`);
+                    updatePatientList();
+                    updateAvailabilityStatus();
+                });
+            });
+        }
+        updatePatientList();
+
+        document.getElementById('toggleAvailability').addEventListener('click', function() {
+            doctorsAvailability[currentUser.name].available = !doctorsAvailability[currentUser.name].available;
+            localStorage.setItem('doctorsAvailability', JSON.stringify(doctorsAvailability));
+            updateAvailabilityStatus();
+        });
+
+        document.getElementById('logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            window.location.href = './doctor-login.html';
+        });
+        document.getElementById('mobileLogout').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = './doctor-login.html';
+        });
+
+        setInterval(updatePatientList, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Sign Up - SmartQueue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-indigo-900 mb-6 text-center">Doctor Sign Up</h1>
+        <form id="signupForm" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input type="text" id="name" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+            </div>
+            <div>
+                <label for="service" class="block text-sm font-medium text-gray-700">Specialty</label>
+                <select id="service" class="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                    <option value="General">General</option>
+                    <option value="Paediatric">Paediatric</option>
+                    <option value="ENT">ENT</option>
+                    <option value="Renal">Renal</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Orthopaedics">Orthopaedics</option>
+                    <option value="Neurology">Neurology fratture>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors">Sign Up</button>
+        </form>
+        <p class="mt-4 text-center text-gray-600">Already have an account? <a href="doctor-login.html" class="text-indigo-600 hover:underline">Log In</a></p>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const service = document.getElementById('service').value;
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.find(user => user.email === email)) {
+                alert('Email already registered.');
+                return;
+            }
+
+            users.push({ email, name, password, role: 'doctor', service });
+            localStorage.setItem('users', JSON.stringify(users));
+
+            let doctorsAvailability = JSON.parse(localStorage.getItem('doctorsAvailability')) || {};
+            doctorsAvailability[name] = { service, available: true };
+            localStorage.setItem('doctorsAvailability', JSON.stringify(doctorsAvailability));
+
+            alert('Doctor account created successfully!');
+            window.location.href = './doctor-login.html';
+        });
+    </script>
+</body>
+</html>
