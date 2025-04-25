@@ -19,6 +19,24 @@
         </div> 
     </header> 
 
+
+    <!-- Header -->
+<header id="main-header" class="fixed top-0 w-full z-10 transition-all duration-300">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-bold text-white transition-colors duration-300"><a href="/">SmartQueue</a></h1>
+      <nav class="flex items-center space-x-4">
+        <a href="/" class="nav-link text-white hover:text-blue-300 transition-colors">Home</a>
+        <a href="#about" class="nav-link text-white hover:text-blue-300 transition-colors">About</a>
+        <a href="#why-smartqueue" class="nav-link text-white hover:text-blue-300 transition-colors">Why SmartQueue</a>
+        <a href="#how-we-work" class="nav-link text-white hover:text-blue-300 transition-colors">How We Work</a>
+        <a href="#testimonials" class="nav-link text-white hover:text-blue-300 transition-colors">Testimonials</a>
+        <!-- <a href="client-login.html" class="nav-link py-2 px-4 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors">Log In</a>
+        <a href="client-signup.html" class="nav-link py-2 px-4 rounded-lg bg-white text-blue-600 hover:bg-blue-100 transition-colors">Sign Up</a> -->
+      </nav>
+    </div>
+  </header>
+  
+
     <!-- Hero Section -->
     <section class="relative min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')">
         <div class="absolute inset-0 bg-black opacity-50"></div>
@@ -35,7 +53,7 @@
 
 
     <!-- About Us Section -->
-        <section class="py-16 bg-gray-100">
+        <section id="about" class="py-16 bg-gray-100">
             <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center">
                 <div class="md:w-1/2 mb-8 md:mb-0">
                     <img src="https://images.unsplash.com/photo-1538108149393-fbbd81895907?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Healthcare Team" class="rounded-lg shadow-lg">
@@ -54,7 +72,7 @@
 
 
     <!-- Features Section -->
-    <section class="py-16 bg-white">
+    <section id="why-smartqueue" class="py-16 bg-white">
         <div class="max-w-6xl mx-auto px-4">
             <h2 class="text-4xl font-bold text-gray-800 text-center mb-12">Why Choose SmartQueue?</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -78,7 +96,7 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="py-16 bg-gray-100">
+    <section id="how-we-work" class="py-16 bg-gray-100">
         <div class="max-w-6xl mx-auto px-4">
             <h2 class="text-4xl font-bold text-gray-800 text-center mb-12">How SmartQueue Works</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -102,7 +120,7 @@
     </section>
 
     <!-- Testimonials Section -->
-    <section class="py-16 bg-white">
+    <section id="testimonials" class="py-16 bg-white">
         <div class="max-w-6xl mx-auto px-4">
             <h2 class="text-4xl font-bold text-gray-800 text-center mb-12">What Our Users Say</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -144,8 +162,32 @@
                     <p class="text-gray-200">Phone: (123) 456-7890</p>
                 </div>
             </div>
-            <p class="text-center text-gray-200 mt-8">© 2025 SmartQueue. All rights reserved.</p>
+            <p class="text-center text-gray-200 mt-8">© 2025 SmartQueue. All rights reserved. Powered by Digiplus Agency</p>
         </div>
     </footer>
+    <script>
+        window.addEventListener('scroll', function () {
+          const header = document.getElementById('main-header');
+          const links = document.querySelectorAll('.nav-link');
+          if (window.scrollY > 50) {
+            header.classList.add('bg-[#2762eb]', 'shadow-md');
+            header.classList.remove('bg-transparent');
+      
+            links.forEach(link => {
+              link.classList.add('text-white');
+              link.classList.remove('text-white');
+            });
+          } else {
+            header.classList.remove('bg-white', 'shadow-md');
+            header.classList.add('bg-transparent');
+      
+            links.forEach(link => {
+              link.classList.remove('text-white');
+              link.classList.add('text-white');
+            });
+          }
+        });
+      </script>
+      
 </body>
 </html>
