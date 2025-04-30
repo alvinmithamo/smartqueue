@@ -103,13 +103,16 @@
                                 <!-- Populated dynamically -->
                             </select>
                         </div>
-                        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors">Allocate</button>
+                        <button type="submit" class="w-64 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors">Allocate</button>
                     </form>
                 </div>
 
                 <!-- Manage Doctors -->
                 <div class="bg-white p-8 rounded-lg shadow-lg">
-                    <h3 class="text-2xl font-semibold text-indigo-900 mb-6">Manage Doctors</h3>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-semibold text-indigo-900">Manage Doctors</h3>
+                        <a href="doctor-signup.html" class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">Add Doctor</a>
+                    </div>
                     <div class="overflow-x-auto">
                         <table id="doctorList" class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -144,6 +147,13 @@
         }
 
         const slots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
+
+        // Function to refresh data from localStorage
+        function refreshData() {
+            users = JSON.parse(localStorage.getItem('users')) || [];
+            doctorsAvailability = JSON.parse(localStorage.getItem('doctorsAvailability')) || {};
+            updateDoctorList();
+        }
 
         function populateAllocationFields() {
             const serviceSelect = document.getElementById('allocateService');
@@ -227,8 +237,9 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${doctor.email}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${doctor.service}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${availability}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
                             <button class="toggleDoctorAvailability bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600" data-name="${doctor.name}">${availability === 'Available' ? 'Mark Not Available' : 'Mark Available'}</button>
+                            <button class="removeDoctor bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600" data-email="${doctor.email}">Remove</button>
                         </td>
                     `;
                     doctorList.appendChild(row);
@@ -240,6 +251,37 @@
                     doctorsAvailability[name].available = !doctorsAvailability[name].available;
                     localStorage.setItem('doctorsAvailability', JSON.stringify(doctorsAvailability));
                     updateDoctorList();
+                });
+            });
+
+            document.querySelectorAll('.removeDoctor').forEach(button => {
+                button.addEventListener('click', function() {
+                    const email = this.getAttribute('data-email');
+                    const doctor = users.find(u => u.email === email);
+                    if (!doctor) return;
+
+                    // Remove doctor from users
+                    users = users.filter(u => u.email !== email);
+                    // Remove doctor's availability
+                    if (doctorsAvailability[doctor.name]) {
+                        delete doctorsAvailability[doctor.name];
+                    }
+                    // Remove appointments and queue entries associated with this doctor
+                    appointments = appointments.filter(a => a.doctor !== doctor.name);
+                    queue = queue.filter(email => {
+                        const appt = appointments.find(a => a.email === email);
+                        return appt && appt.doctor !== doctor.name;
+                    });
+
+                    // Update localStorage
+                    localStorage.setItem('users', JSON.stringify(users));
+                    localStorage.setItem('doctorsAvailability', JSON.stringify(doctorsAvailability));
+                    localStorage.setItem('appointments', JSON.stringify(appointments));
+                    localStorage.setItem('queue', JSON.stringify(queue));
+
+                    alert(`Doctor ${doctor.name} (${email}) removed from the system.`);
+                    updateDoctorList();
+                    updateQueueList();
                 });
             });
         }
@@ -313,6 +355,10 @@
             localStorage.removeItem('currentUser');
             window.location.href = './admin-login.html';
         });
+
+        // Refresh data on page focus or show to catch updates from doctor-signup.html
+        window.addEventListener('focus', refreshData);
+        window.addEventListener('pageshow', refreshData);
 
         setInterval(() => {
             updateQueueList();
